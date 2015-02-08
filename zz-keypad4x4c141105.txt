@@ -1,0 +1,122 @@
+//zz//###################################################################################
+
+zz-C语言4x4按键扫描141105.txt
+
+	@2014-11-5 16:33:32
+	@2014-11-3 11:51:56
+	@
+	
+REF:
+
+	
+//zz//###################################################################################
+1.
+以51单片机为示例,P1口低4位为行扫描
+P1口高4位为列作输入...
+返回按键编号 0~15 ,若为16则表示没有按键被按下
+
+int kbscan()
+{
+	int li_row =0;
+	int li_col =0;
+	
+	//zz// P1 口 0~3 bits 作为行扫描引脚
+	for(li_row=0; li_row<4; li_row++)
+	{
+		P1 = ~(1<<li_row);
+		
+		//zz// P1 口 4~7 bits 作为列输入引脚 
+		for(li_col=0; li_col<4; li_col++)
+		{
+			if( (P1>>4) & (1<<li_col))
+				return(li_row*4 + li_col);
+		}
+	}
+	
+	return 16;
+}
+
+
+//zz//###################################################################################
+2.
+扩展1,多个按键按下
+
+int multi_kbscan(int *key_cnt,int *key_first,int *key_last)
+{
+	int li_row =0;
+	int li_col =0;
+	
+	*key_cnt = 0;
+	*key_first = 16;
+	*key_first = 16;
+	
+	//zz// P1 口 0~3 bits 作为行扫描引脚
+	for(li_row=0; li_row<4; li_row++)
+	{
+		P1 = ~(1<<li_row);
+		
+		//zz// P1 口 4~7 bits 作为列输入引脚 
+		for(li_col=0; li_col<4; li_col++)
+		{
+			if( (P1>>4) & (1<<li_col))
+			{
+				// return(li_row*4 + li_col);
+				if(*key_cnt ==0)
+				{
+					*key_first = li_row*4+li_col;
+				}
+				else
+				{
+					*key_last = li_row*4 + li_col;
+				}
+				*key_cnt += 1;
+			}
+		}
+	}
+	
+	return(*key_cnt);
+}
+
+
+//zz//###################################################################################
+3.
+扩展2,按键数量多,用宏定义,假设P1的引脚数能满足row,P2的引脚数能满足column
+
+#define CFG_KEYROW_MAX (4)
+#define CFG_KEYCOL_MAX (4)
+
+int multi_kbscan(int *key_cnt,int *key_first,int *key_last)
+{
+	int li_row =0;
+	int li_col =0;
+	
+	*key_cnt = 0;
+	*key_first = 16;
+	*key_first = 16;
+	
+	//zz// P1 口 0~3 bits 作为行扫描引脚
+	for(li_row=0; li_row<CFG_KEYROW_MAX; li_row++)
+	{
+		P1 = ~(1<<li_row);
+		
+		//zz// P1 口 4~7 bits 作为列输入引脚 
+		for(li_col=0; li_col<CFG_KEYCOL_MAX; li_col++)
+		{
+			if( (P2 & (1<<li_col))
+			{
+				// return(li_row*4 + li_col);
+				if(*key_cnt ==0)
+				{
+					*key_first = li_row*4+li_col;
+				}
+				else
+				{
+					*key_last = li_row*4 + li_col;
+				}
+				*key_cnt += 1;
+			}
+		}
+	}
+	
+	return(*key_cnt);
+}
